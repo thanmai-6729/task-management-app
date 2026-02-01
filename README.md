@@ -152,6 +152,7 @@ Contributions, issues, and feature requests are welcome!
 
 ## 📧 Contact
 
-Your Name - [your.email@example.com](mailto:your.email@example.com)
+Your Name - Gundekari Thanmai
 
-Project Link: [https://github.com/YOUR_USERNAME/task-management-app](https://github.com/YOUR_USERNAME/task-management-app)
+Project Link:  https://github.com/thanmai-6729/task-management-app
+
