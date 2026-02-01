@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TaskFlow</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <span>TaskFlow</span>
+            </div>
+            <div class="user-nav">
+                <p class="welcome-text">Welcome, <span id="user-name">User</span></p>
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Stats Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <p class="label">Total Tasks</p>
+                        <p class="value" id="stat-total">0</p>
+                    </div>
+                    <div class="stat-icon total">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <p class="label">Completion Rate</p>
+                        <p class="value" id="completion-rate">0%</p>
+                    </div>
+                    <div class="stat-icon completed">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div id="completion-bar" class="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <p class="label">In Progress</p>
+                        <p class="value" id="stat-in-progress">0</p>
+                    </div>
+                    <div class="stat-icon in-progress">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <p class="label">Overdue</p>
+                        <p class="value" id="stat-overdue">0</p>
+                    </div>
+                    <div class="stat-icon" style="background: #fef2f2; color: var(--high);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" class="search-input"
+                    placeholder="Search tasks (Press / to focus)...">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <div class="input-wrapper" style="width: 180px;">
+                    <select id="sort-select" style="padding-left: 1rem;">
+                        <option value="created_at">Created Date</option>
+                        <option value="due_date">Due Date</option>
+                        <option value="priority">Priority</option>
+                        <option value="title">Title</option>
+                    </select>
+                </div>
+                <button id="order-toggle" class="btn-secondary" style="padding: 0 1rem;" title="Toggle Order">
+                    <i class="fas fa-sort-amount-down"></i>
+                </button>
+            </div>
+            <button id="add-task-btn" class="btn-add">
+                <i class="fas fa-plus"></i>
+                New Task <span style="font-size: 0.7rem; opacity: 0.8; margin-left: 4px;">[Ctrl+N]</span>
+            </button>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Status</span>
+                <button class="filter-btn active" data-status="All">All</button>
+                <button class="filter-btn" data-status="Pending">Pending</button>
+                <button class="filter-btn" data-status="In Progress">In Progress</button>
+                <button class="filter-btn" data-status="Completed">Completed</button>
+            </div>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div id="tasks-grid" class="tasks-grid">
+            <!-- Tasks will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <p class="empty-text">No tasks found. Start by adding a new task!</p>
+            <button class="btn-primary" onclick="document.getElementById('add-task-btn').click()"
+                style="width: auto; padding: 0.75rem 2rem;">
+                Create Your First Task
+            </button>
+        </div>
+    </main>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Add New Task</h2>
+                <button class="btn-close" id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="task-form">
+                <div class="modal-body">
+                    <input type="hidden" id="task-id">
+                    <div class="form-group">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" id="task-title" placeholder="What needs to be done?" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea id="task-desc" rows="3" placeholder="Add more details..."></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select id="task-priority">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select id="task-status">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" id="task-due-date">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-modal">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width: auto; margin: 0;" id="save-task-btn">Save
+                        Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="src/pages/dashboard.js"></script>
+</body>
+
+</html>
